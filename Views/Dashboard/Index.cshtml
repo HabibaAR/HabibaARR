@@ -1,0 +1,215 @@
+@model DashboardViewModel
+
+@{
+    ViewData["Title"] = "Tableau de bord";
+}
+
+<div class="container-fluid">
+    <h1 class="mb-4">
+        <i class="fas fa-chart-line"></i> Tableau de bord
+    </h1>
+
+    <!-- KPI Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-white-50">Total Actions</h6>
+                            <h2 class="mb-0">@Model.Metrics.TotalActions</h2>
+                        </div>
+                        <div class="text-end">
+                            <i class="fas fa-tasks fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-white-50">Complétées</h6>
+                            <h2 class="mb-0">@Model.Metrics.CompletedActions</h2>
+                        </div>
+                        <div class="text-end">
+                            <i class="fas fa-check-circle fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-white-50">En cours</h6>
+                            <h2 class="mb-0">@Model.Metrics.InProgressActions</h2>
+                        </div>
+                        <div class="text-end">
+                            <i class="fas fa-spinner fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title text-white-50">En retard</h6>
+                            <h2 class="mb-0">@Model.Metrics.OverdueActions</h2>
+                        </div>
+                        <div class="text-end">
+                            <i class="fas fa-exclamation-circle fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress and Status -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-pie"></i> Taux de réussite
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-success" role="progressbar"
+                             style="width: @Model.Metrics.CompletionRate%;"
+                             aria-valuenow="@Model.Metrics.CompletionRate"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                            @Model.Metrics.CompletionRate.ToString("F1")%
+                        </div>
+                    </div>
+                    <p class="mt-3 small text-muted">
+                        @Model.Metrics.CompletedActions sur @Model.Metrics.TotalActions actions complétées
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list"></i> Répartition par statut
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @foreach (var item in Model.ActionsByStatus.OrderByDescending(x => x.Value))
+                    {
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>@item.Key</span>
+                            <span class="badge bg-primary">@item.Value</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overdue Actions -->
+    @if (Model.OverdueActions.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-exclamation-triangle"></i> Actions en retard
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Responsable</th>
+                                        <th>Nombre d'actions en retard</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.OverdueActions)
+                                    {
+                                        <tr>
+                                            <td>@item.Item1</td>
+                                            <td>
+                                                <span class="badge bg-danger">@item.Item2</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Quick Stats -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h6 class="card-title text-muted">Plans d'action</h6>
+                    <h3 class="text-primary">@Model.Metrics.TotalActionPlans</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h6 class="card-title text-muted">Actions acceptées</h6>
+                    <h3 class="text-info">@Model.Metrics.AcceptedActions</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h6 class="card-title text-muted">Preuves soumises</h6>
+                    <h3 class="text-warning">@Model.Metrics.SubmittedEvidenceActions</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .card-header {
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .bg-primary {
+        background-color: #2a5298 !important;
+    }
+
+    .bg-success {
+        background-color: #27ae60 !important;
+    }
+
+    .bg-warning {
+        background-color: #f39c12 !important;
+    }
+
+    .bg-danger {
+        background-color: #e74c3c !important;
+    }
+</style>

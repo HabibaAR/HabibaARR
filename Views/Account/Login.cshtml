@@ -1,0 +1,190 @@
+@model LoginViewModel
+
+@{
+    ViewData["Title"] = "Connexion";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Connexion</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            color: #2a5298;
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            padding: 12px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .form-control:focus {
+            border-color: #2a5298;
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        .btn-login {
+            background-color: #ff6b6b;
+            border: none;
+            padding: 12px;
+            font-weight: bold;
+            width: 100%;
+            border-radius: 5px;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        .btn-login:hover {
+            background-color: #ff5252;
+        }
+
+        .remember-me {
+            font-size: 0.95rem;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-link a {
+            color: #2a5298;
+            text-decoration: none;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .demo-credentials {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+        }
+
+        .demo-credentials p {
+            margin-bottom: 5px;
+        }
+
+        .demo-credentials strong {
+            color: #2a5298;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>
+                <i class="fas fa-lock"></i>
+            </h1>
+            <h2>Connexion</h2>
+            <p>Plateforme NOVEC</p>
+        </div>
+
+        @if (ViewBag.ReturnUrl != null)
+        {
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-info-circle"></i> Connexion requise pour accéder à cette page
+            </div>
+        }
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger" role="alert">
+                @foreach (var modelState in ViewData.ModelState.Values)
+                {
+                    @foreach (var error in modelState.Errors)
+                    {
+                        <p class="mb-0">@error.ErrorMessage</p>
+                    }
+                }
+            </div>
+        }
+
+        <div class="demo-credentials">
+            <p><strong>Identifiants de test :</strong></p>
+            <p><strong>Admin :</strong> admin@novec.fr / Test@12345</p>
+            <p><strong>Gestionnaire :</strong> gestionnaire@novec.fr / Test@12345</p>
+            <p><strong>Responsable :</strong> responsable@novec.fr / Test@12345</p>
+        </div>
+
+        <form method="post">
+            <div class="form-group">
+                <label for="email" class="form-label">Adresse Email</label>
+                <input type="email" class="form-control" id="email" name="Email" placeholder="email@novec.fr" required />
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Mot de passe</label>
+                <input type="password" class="form-control" id="password" name="Password" placeholder="Mot de passe" required />
+            </div>
+
+            <div class="form-group form-check remember-me">
+                <input type="checkbox" class="form-check-input" id="rememberMe" name="RememberMe" />
+                <label class="form-check-label" for="rememberMe">
+                    Se souvenir de moi
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-login">
+                <i class="fas fa-sign-in-alt"></i> Se connecter
+            </button>
+        </form>
+
+        <div class="back-link">
+            <a href="@Url.Action("Index", "Home")">
+                <i class="fas fa-arrow-left"></i> Retour à l'accueil
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
