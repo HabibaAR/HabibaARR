@@ -120,8 +120,7 @@
                             </button>
                         </form>
                     }
-                    @else if (Model.Action.Status == ActionStatus.Accepted ||
-                              Model.Action.Status == ActionStatus.InProgress)
+                    else if (Model.Action.Status == ActionStatus.Accepted || Model.Action.Status == ActionStatus.InProgress)
                     {
                         <a href="#evidences" class="btn btn-primary w-100">
                             <i class="fas fa-file-upload"></i> Soumettre une preuve
@@ -298,8 +297,8 @@
         {
             ActionPriority.Low => "bg-info",
             ActionPriority.Medium => "bg-warning",
-            ActionPriority.High => "bg-orange",
-            ActionPriority.Critical => "bg-danger",
+            ActionPriority.High => "bg-danger",
+            ActionPriority.Critical => "bg-dark",
             _ => "bg-secondary"
         };
     }
