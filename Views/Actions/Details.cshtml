@@ -1,0 +1,405 @@
+@model ActionDetailViewModel
+
+@{
+    ViewData["Title"] = $"Action: {Model.Action.Title}";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>@Model.Action.Title</h1>
+            <p class="text-muted">Référence: <strong>@Model.Action.Reference</strong></p>
+        </div>
+        <div>
+            <span class="badge @GetStatusBadgeClass(Model.Action.Status) p-2">
+                @GetStatusDisplay(Model.Action.Status)
+            </span>
+        </div>
+    </div>
+
+    <!-- Informations principales -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Informations</h5>
+                </div>
+                <div class="card-body">
+                    <p>@Model.Action.Description</p>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Responsable:</strong> @Model.Action.ResponsibleName
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Gestionnaire:</strong> @Model.Action.ManagerName
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-md-4">
+                            <strong>Priorité:</strong>
+                            <span class="badge @GetPriorityClass(Model.Action.Priority)">
+                                @GetPriorityDisplay(Model.Action.Priority)
+                            </span>
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Plan:</strong> @Model.Action.ActionPlanTitle
+                        </div>
+                        <div class="col-md-4">
+                            <strong>Avancement:</strong> @Model.Action.ProgressPercentage%
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <strong>Début:</strong> @Model.Action.StartDate.ToShortDateString()
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Échéance:</strong>
+                            @if (Model.Action.IsOverdue)
+                            {
+                                <span class="text-danger">@Model.Action.DueDate.ToShortDateString() ⚠️ EN RETARD</span>
+                            }
+                            else
+                            {
+                                <span>@Model.Action.DueDate.ToShortDateString()</span>
+                            }
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.RejectionReason))
+                    {
+                        <div class="alert alert-danger mt-3">
+                            <strong>Motif du rejet :</strong> @Model.RejectionReason
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Progression -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Progression</h5>
+                </div>
+                <div class="card-body">
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar" role="progressbar"
+                             style="width: @Model.Action.ProgressPercentage%"
+                             aria-valuenow="@Model.Action.ProgressPercentage"
+                             aria-valuemin="0" aria-valuemax="100">
+                            @Model.Action.ProgressPercentage%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel actions -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Action.Status == ActionStatus.New)
+                    {
+                        <form asp-action="Accept" asp-route-id="@Model.Action.Id" method="post" class="mb-2">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check"></i> Accepter
+                            </button>
+                        </form>
+                        <form asp-action="Reject" asp-route-id="@Model.Action.Id" method="post">
+                            <div class="mb-2">
+                                <input type="text" name="reason" class="form-control form-control-sm"
+                                       placeholder="Motif du rejet..." required />
+                            </div>
+                            <button type="submit" class="btn btn-danger w-100"
+                                    onclick="return confirm('Êtes-vous sûr?')">
+                                <i class="fas fa-times"></i> Rejeter
+                            </button>
+                        </form>
+                    }
+                    @else if (Model.Action.Status == ActionStatus.Accepted ||
+                              Model.Action.Status == ActionStatus.InProgress)
+                    {
+                        <a href="#evidences" class="btn btn-primary w-100">
+                            <i class="fas fa-file-upload"></i> Soumettre une preuve
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">Dates clés</h5>
+                </div>
+                <div class="card-body small">
+                    <p>
+                        <strong>Créée :</strong><br/>
+                        @Model.Action.CreatedAt.ToString("g")
+                    </p>
+                    @if (Model.Action.CompletedAt.HasValue)
+                    {
+                        <p>
+                            <strong>Clôturée :</strong><br/>
+                            @Model.Action.CompletedAt.Value.ToString("g")
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preuves -->
+    <div class="row mb-4" id="evidences">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-check"></i> Preuves (@Model.Evidences.Count())
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Evidences.Any())
+                    {
+                        @foreach (var evidence in Model.Evidences)
+                        {
+                            <div class="card mb-3 border-left-@GetEvidenceColor(evidence.Status)">
+                                <div class="card-header">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>Soumise le :</strong> @evidence.SubmittedAt.ToString("g")<br/>
+                                            <strong>Par :</strong> @evidence.SubmittedByName
+                                        </div>
+                                        <span class="badge @GetEvidenceBadgeClass(evidence.Status)">
+                                            @GetEvidenceDisplay(evidence.Status)
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <p>@evidence.Comment</p>
+
+                                    @if (evidence.Attachments.Any())
+                                    {
+                                        <div class="mt-3">
+                                            <strong>Pièces jointes :</strong>
+                                            <ul class="list-unstyled">
+                                                @foreach (var attachment in evidence.Attachments)
+                                                {
+                                                    <li>
+                                                        <a href="@attachment.FilePath" download class="btn btn-sm btn-link">
+                                                            <i class="fas fa-download"></i> @attachment.FileName
+                                                        </a>
+                                                        <small>(@attachment.FileSizeDisplay)</small>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
+
+                                    @if (!string.IsNullOrEmpty(evidence.RejectionReason))
+                                    {
+                                        <div class="alert alert-danger mt-2">
+                                            <strong>Motif du rejet :</strong> @evidence.RejectionReason
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">Aucune preuve soumise.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Journal -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-history"></i> Journal d'action (@Model.Logs.Count())
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        @foreach (var log in Model.Logs.OrderByDescending(l => l.CreatedAt))
+                        {
+                            <div class="timeline-item @GetTimelineClass(log.EventType)">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>@log.EventTypeDisplay</strong><br/>
+                                        <small class="text-muted">
+                                            @log.CreatedAt.ToString("g") par @log.CreatedByName
+                                        </small>
+                                    </div>
+                                    <span class="badge bg-secondary">@log.EventType</span>
+                                </div>
+                                @if (!string.IsNullOrEmpty(log.Comment))
+                                {
+                                    <p class="mt-2 mb-0">@log.Comment</p>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Retour à la liste
+        </a>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(ActionStatus status)
+    {
+        return status switch
+        {
+            ActionStatus.Draft => "bg-secondary",
+            ActionStatus.New => "bg-info",
+            ActionStatus.Accepted => "bg-success",
+            ActionStatus.Rejected => "bg-danger",
+            ActionStatus.InProgress => "bg-warning",
+            ActionStatus.EvidenceSubmitted => "bg-primary",
+            ActionStatus.EvidenceRejected => "bg-warning",
+            ActionStatus.Completed => "bg-success",
+            _ => "bg-light"
+        };
+    }
+
+    string GetStatusDisplay(ActionStatus status)
+    {
+        return status switch
+        {
+            ActionStatus.Draft => "Brouillon",
+            ActionStatus.New => "Nouvelle",
+            ActionStatus.Accepted => "Acceptée",
+            ActionStatus.Rejected => "Rejetée",
+            ActionStatus.InProgress => "En cours",
+            ActionStatus.EvidenceSubmitted => "Preuve soumise",
+            ActionStatus.EvidenceRejected => "Preuve rejetée",
+            ActionStatus.Completed => "Complétée",
+            _ => "Inconnue"
+        };
+    }
+
+    string GetPriorityClass(ActionPriority priority)
+    {
+        return priority switch
+        {
+            ActionPriority.Low => "bg-info",
+            ActionPriority.Medium => "bg-warning",
+            ActionPriority.High => "bg-orange",
+            ActionPriority.Critical => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetPriorityDisplay(ActionPriority priority)
+    {
+        return priority switch
+        {
+            ActionPriority.Low => "Basse",
+            ActionPriority.Medium => "Moyenne",
+            ActionPriority.High => "Haute",
+            ActionPriority.Critical => "Critique",
+            _ => "Inconnue"
+        };
+    }
+
+    string GetEvidenceBadgeClass(EvidenceStatus status)
+    {
+        return status switch
+        {
+            EvidenceStatus.Submitted => "bg-info",
+            EvidenceStatus.Approved => "bg-success",
+            EvidenceStatus.Rejected => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+
+    string GetEvidenceDisplay(EvidenceStatus status)
+    {
+        return status switch
+        {
+            EvidenceStatus.Submitted => "Soumise",
+            EvidenceStatus.Approved => "Approuvée",
+            EvidenceStatus.Rejected => "Rejetée",
+            _ => "Inconnue"
+        };
+    }
+
+    string GetEvidenceColor(EvidenceStatus status)
+    {
+        return status switch
+        {
+            EvidenceStatus.Approved => "success",
+            EvidenceStatus.Rejected => "danger",
+            _ => "info"
+        };
+    }
+
+    string GetTimelineClass(ActionLogEventType eventType)
+    {
+        return eventType switch
+        {
+            ActionLogEventType.Completed => "completed",
+            ActionLogEventType.Rejected => "rejected",
+            _ => ""
+        };
+    }
+}
+
+<style>
+    .border-left-success {
+        border-left: 4px solid #28a745 !important;
+    }
+
+    .border-left-danger {
+        border-left: 4px solid #dc3545 !important;
+    }
+
+    .border-left-info {
+        border-left: 4px solid #17a2b8 !important;
+    }
+
+    .timeline {
+        position: relative;
+        padding: 20px 0;
+    }
+
+    .timeline-item {
+        padding-left: 30px;
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 5px;
+        width: 12px;
+        height: 12px;
+        background-color: #2a5298;
+        border-radius: 50%;
+        border: 3px solid white;
+    }
+
+    .timeline-item.completed::before {
+        background-color: #28a745;
+    }
+
+    .timeline-item.rejected::before {
+        background-color: #dc3545;
+    }
+</style>

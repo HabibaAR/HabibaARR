@@ -1,0 +1,138 @@
+@model ActionPlanViewModel
+
+@{
+    ViewData["Title"] = $"Plan: {Model.Title}";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1>@Model.Title</h1>
+            <p class="text-muted">Référence: <strong>@Model.Reference</strong></p>
+        </div>
+        <div>
+            <span class="badge @GetStatusBadgeClass(Model.Status) p-2">
+                @GetStatusDisplay(Model.Status)
+            </span>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Informations du plan</h5>
+                </div>
+                <div class="card-body">
+                    <p>@Model.Description</p>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <strong>Gestionnaire:</strong><br/>
+                            @Model.ManagerName
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Nombre d'actions:</strong><br/>
+                            <span class="badge bg-info">@Model.ActionCount</span>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <strong>Date de début:</strong><br/>
+                            @Model.StartDate.ToShortDateString()
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Date de fin:</strong><br/>
+                            @Model.EndDate.ToShortDateString()
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <strong>Créé le:</strong><br/>
+                            @Model.CreatedAt.ToString("g")
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Mis à jour:</strong><br/>
+                            @(Model.UpdatedAt?.ToString("g") ?? "Jamais")
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Actions</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Status == ActionPlanStatus.Draft)
+                    {
+                        <form asp-action="Submit" asp-route-id="@Model.Id" method="post" class="mb-2">
+                            <button type="submit" class="btn btn-success btn-block w-100"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir transmettre ce plan ?')">
+                                <i class="fas fa-paper-plane"></i> Transmettre le plan
+                            </button>
+                        </form>
+                        <a asp-action="Index" class="btn btn-secondary w-100">
+                            <i class="fas fa-times"></i> Annuler
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Actions" asp-action="Create" asp-route-planId="@Model.Id"
+                           class="btn btn-primary w-100">
+                            <i class="fas fa-plus"></i> Ajouter une action
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-tasks"></i> Actions (@Model.ActionCount)
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <a asp-controller="Actions" asp-action="Index" asp-route-planId="@Model.Id"
+                       class="btn btn-link w-100 text-start">
+                        Voir toutes les actions →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Retour à la liste
+    </a>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(ActionPlanStatus status)
+    {
+        return status switch
+        {
+            ActionPlanStatus.Draft => "bg-secondary",
+            ActionPlanStatus.Active => "bg-success",
+            ActionPlanStatus.Closed => "bg-dark",
+            ActionPlanStatus.Archived => "bg-warning",
+            _ => "bg-light"
+        };
+    }
+
+    string GetStatusDisplay(ActionPlanStatus status)
+    {
+        return status switch
+        {
+            ActionPlanStatus.Draft => "Brouillon",
+            ActionPlanStatus.Active => "Actif",
+            ActionPlanStatus.Closed => "Clôturé",
+            ActionPlanStatus.Archived => "Archivé",
+            _ => "Inconnu"
+        };
+    }
+}
