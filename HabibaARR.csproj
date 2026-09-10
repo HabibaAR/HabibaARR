@@ -19,7 +19,6 @@
 
     <!-- Reports and Export -->
     <PackageReference Include="ClosedXML" Version="0.102.1" />
-    <PackageReference Include="SelectPdf" Version="23.1.0" />
 
     <!-- Logging and Utilities -->
     <PackageReference Include="Serilog" Version="3.0.1" />
