@@ -675,6 +675,15 @@
                     {
                         <a href="#evidence-form" class="action-button btn-evidence">📎 Soumettre une preuve</a>
                     }
+                    else if (Model.Action.Status == ActionStatus.EvidenceSubmitted)
+                    {
+                        @if (User.IsInRole("ADMIN") || User.IsInRole("GESTIONNAIRE"))
+                        {
+                            <form asp-action="Complete" asp-route-id="@Model.Action.Id" method="post">
+                                <button type="submit" class="action-button btn-accept" onclick="return confirm('Êtes-vous sûr de clôturer cette action?')">✓ Clôturer</button>
+                            </form>
+                        }
+                    }
                 </div>
             </div>
         </div>

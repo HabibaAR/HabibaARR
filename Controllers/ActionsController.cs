@@ -281,6 +281,29 @@ public class ActionsController : Controller
         }
     }
 
+    [HttpPost]
+    public async Task<IActionResult> Complete(int id)
+    {
+        var action = await _actionService.GetByIdAsync(id);
+        if (action == null)
+            return NotFound();
+
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+        if (!await _userService.IsManagerAsync(userId) && !User.IsInRole("ADMIN"))
+            return Forbid();
+
+        try
+        {
+            await _actionService.CompleteAsync(id, userId);
+            return RedirectToAction(nameof(Details), new { id });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur lors de la clôture de l'action");
+            return BadRequest();
+        }
+    }
+
     private ActionViewModel MapToViewModel(Action action)
     {
         return new ActionViewModel

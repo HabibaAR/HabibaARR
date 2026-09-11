@@ -1,0 +1,25 @@
+<svg width="200" height="80" viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="40" cy="40" r="35" fill="#2a5298" opacity="0.1"/>
+
+  <!-- Logo mark - geometric design -->
+  <g transform="translate(20, 20)">
+    <!-- N shape -->
+    <rect x="2" y="2" width="4" height="36" fill="#2a5298" rx="2"/>
+    <polygon points="12,38 30,2 34,2 16,38" fill="#2a5298"/>
+    <rect x="32" y="2" width="4" height="36" fill="#2a5298" rx="2"/>
+  </g>
+
+  <!-- Text: NOVEC -->
+  <text x="60" y="45" font-family="Arial, sans-serif" font-size="32" font-weight="700" fill="#2a5298" letter-spacing="2">
+    NOVEC
+  </text>
+
+  <!-- Subtitle -->
+  <text x="60" y="62" font-family="Arial, sans-serif" font-size="10" fill="#7f8c8d" letter-spacing="1" font-weight="500">
+    Gestion des Plans d'Action
+  </text>
+
+  <!-- Accent line -->
+  <line x1="60" y1="68" x2="195" y2="68" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+</svg>

@@ -797,6 +797,79 @@ body {
     justify-content: space-between;
 }
 
+/* Action Status Badges for Details View */
+.status-draft {
+    background-color: #95a5a6 !important;
+    color: white !important;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-new {
+    background-color: #3498db !important;
+    color: white !important;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-accepted {
+    background-color: #27ae60 !important;
+    color: white !important;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-in-progress {
+    background-color: #f39c12 !important;
+    color: white !important;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-rejected {
+    background-color: #e74c3c !important;
+    color: white !important;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-evidence {
+    background-color: #9b59b6 !important;
+    color: white !important;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-evidence-rejected {
+    background-color: #e67e22 !important;
+    color: white !important;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-completed {
+    background-color: #16a085 !important;
+    color: white !important;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-block;
+}
+
 .align-items-center {
     align-items: center;
 }
