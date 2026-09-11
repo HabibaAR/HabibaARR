@@ -1,0 +1,396 @@
+@model IEnumerable<ActionViewModel>
+
+@{
+    ViewData["Title"] = "Actions";
+}
+
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        gap: 20px;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+    }
+
+    .header-filters {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .filter-chip {
+        display: inline-block;
+        padding: 6px 16px;
+        background-color: var(--light-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .actions-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .actions-table thead {
+        background-color: var(--light-bg);
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .actions-table th {
+        padding: 15px 20px;
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+
+    .actions-table tbody tr {
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.3s ease;
+    }
+
+    .actions-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .actions-table td {
+        padding: 15px 20px;
+        color: var(--text-primary);
+    }
+
+    .action-reference {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+
+    .action-title {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .status-new {
+        background-color: #e3f2fd;
+        color: var(--info-color);
+    }
+
+    .status-accepted {
+        background-color: #e8f5e9;
+        color: var(--success-color);
+    }
+
+    .status-in-progress {
+        background-color: #fff3e0;
+        color: var(--warning-color);
+    }
+
+    .status-rejected {
+        background-color: #ffebee;
+        color: var(--danger-color);
+    }
+
+    .status-evidence {
+        background-color: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .status-completed {
+        background-color: #c8e6c9;
+        color: #1b5e20;
+    }
+
+    .priority-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .priority-low {
+        background-color: #e0e0e0;
+        color: #555;
+    }
+
+    .priority-medium {
+        background-color: #fff3e0;
+        color: #e65100;
+    }
+
+    .priority-high {
+        background-color: #ffebee;
+        color: var(--danger-color);
+    }
+
+    .priority-critical {
+        background-color: #c62828;
+        color: white;
+    }
+
+    .progress-bar-container {
+        width: 100%;
+        height: 6px;
+        background-color: #e0e0e0;
+        border-radius: 3px;
+        overflow: hidden;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        transition: width 0.3s ease;
+    }
+
+    .overdue-indicator {
+        color: var(--danger-color);
+        font-weight: 600;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
+
+    .btn-sm-view {
+        background-color: var(--info-color);
+        color: white;
+    }
+
+    .btn-sm-view:hover {
+        background-color: #2980b9;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+
+    .empty-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 10px;
+    }
+
+    .empty-text {
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+    }
+
+    .empty-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .empty-link:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-filters {
+            width: 100%;
+            flex-wrap: wrap;
+        }
+
+        .actions-table th,
+        .actions-table td {
+            padding: 12px 10px;
+            font-size: 0.85rem;
+        }
+
+        .action-title {
+            max-width: 150px;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-sm {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <h1 class="page-title">✓ Actions</h1>
+</div>
+
+@if (Model.Any())
+{
+    <table class="actions-table">
+        <thead>
+            <tr>
+                <th>Référence</th>
+                <th>Titre</th>
+                <th>Responsable</th>
+                <th>Priorité</th>
+                <th>Statut</th>
+                <th style="text-align: center;">Avancement</th>
+                <th style="text-align: center;">Échéance</th>
+                <th style="text-align: center;">Opérations</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var action in Model.OrderByDescending(a => a.StartDate))
+            {
+                <tr>
+                    <td class="action-reference">@action.Reference</td>
+                    <td class="action-title" title="@action.Title">@action.Title</td>
+                    <td>@action.ResponsibleName</td>
+                    <td>
+                        <span class="priority-badge @GetPriorityCssClass(action.Priority)">
+                            @GetPriorityDisplay(action.Priority)
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge @GetStatusCssClass(action.Status)">
+                            @GetStatusDisplay(action.Status)
+                        </span>
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; align-items: center; gap: 8px; justify-content: center;">
+                            <div class="progress-bar-container" style="width: 60px;">
+                                <div class="progress-bar-fill" style="width: @(action.ProgressPercentage)%"></div>
+                            </div>
+                            <span style="font-size: 0.85rem; font-weight: 600;">@(action.ProgressPercentage)%</span>
+                        </div>
+                    </td>
+                    <td style="text-align: center;">
+                        @if (action.IsOverdue)
+                        {
+                            <span class="overdue-indicator">⚠️ @action.DueDate.ToShortDateString()</span>
+                        }
+                        else
+                        {
+                            <span>@action.DueDate.ToShortDateString()</span>
+                        }
+                    </td>
+                    <td style="text-align: center;">
+                        <div class="action-buttons">
+                            <a href="@Url.Action("Details", "Actions", new { id = action.Id })" class="btn-sm btn-sm-view">
+                                👁️ Voir
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="empty-state">
+        <div class="empty-icon">✓</div>
+        <h2 class="empty-title">Aucune action</h2>
+        <p class="empty-text">Vous n'avez actuellement aucune action assignée</p>
+    </div>
+}
+
+@functions {
+    string GetStatusCssClass(ActionStatus status)
+    {
+        return status switch
+        {
+            ActionStatus.New => "status-new",
+            ActionStatus.Accepted => "status-accepted",
+            ActionStatus.InProgress => "status-in-progress",
+            ActionStatus.EvidenceSubmitted => "status-evidence",
+            ActionStatus.Rejected => "status-rejected",
+            ActionStatus.Completed => "status-completed",
+            _ => "status-new"
+        };
+    }
+
+    string GetStatusDisplay(ActionStatus status)
+    {
+        return status switch
+        {
+            ActionStatus.New => "🔵 Nouvelle",
+            ActionStatus.Accepted => "✓ Acceptée",
+            ActionStatus.InProgress => "🔄 En cours",
+            ActionStatus.EvidenceSubmitted => "📎 Preuve soumise",
+            ActionStatus.EvidenceRejected => "⚠️ Preuve rejetée",
+            ActionStatus.Rejected => "✕ Rejetée",
+            ActionStatus.Completed => "✓✓ Complétée",
+            _ => "? Inconnue"
+        };
+    }
+
+    string GetPriorityCssClass(ActionPriority priority)
+    {
+        return priority switch
+        {
+            ActionPriority.Low => "priority-low",
+            ActionPriority.Medium => "priority-medium",
+            ActionPriority.High => "priority-high",
+            ActionPriority.Critical => "priority-critical",
+            _ => "priority-low"
+        };
+    }
+
+    string GetPriorityDisplay(ActionPriority priority)
+    {
+        return priority switch
+        {
+            ActionPriority.Low => "Basse",
+            ActionPriority.Medium => "Moyenne",
+            ActionPriority.High => "Haute",
+            ActionPriority.Critical => "Critique",
+            _ => "Inconnue"
+        };
+    }
+}
