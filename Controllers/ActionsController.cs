@@ -39,6 +39,14 @@ public class ActionsController : Controller
         {
             actions = await _actionService.GetByPlanAsync(planId.Value);
         }
+        else if (User.IsInRole("ADMIN") || User.IsInRole("DIRECTEUR"))
+        {
+            actions = await _actionService.GetAllAsync();
+        }
+        else if (User.IsInRole("GESTIONNAIRE"))
+        {
+            actions = await _actionService.GetAllAsync();
+        }
         else if (await _userService.IsResponsibleAsync(userId))
         {
             actions = await _actionService.GetAssignedToAsync(userId);

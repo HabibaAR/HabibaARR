@@ -27,6 +27,16 @@ public class ActionService : IActionService
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 
+    public async Task<IEnumerable<Action>> GetAllAsync()
+    {
+        return await _context.Actions
+            .Include(a => a.ActionPlan)
+            .Include(a => a.Responsible)
+            .Include(a => a.Manager)
+            .OrderByDescending(a => a.CreatedAt)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<Action>> GetByPlanAsync(int planId)
     {
         return await _context.Actions

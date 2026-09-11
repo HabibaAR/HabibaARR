@@ -6,6 +6,7 @@ namespace HabibaARR.Services;
 public interface IActionService
 {
     Task<Action?> GetByIdAsync(int id);
+    Task<IEnumerable<Action>> GetAllAsync();
     Task<IEnumerable<Action>> GetByPlanAsync(int planId);
     Task<IEnumerable<Action>> GetAssignedToAsync(string userId);
     Task<Action> CreateAsync(Action action, string userId);
