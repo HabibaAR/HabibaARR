@@ -12,17 +12,20 @@ public class ActionsController : Controller
 {
     private readonly IActionService _actionService;
     private readonly IActionPlanService _actionPlanService;
+    private readonly IEvidenceService _evidenceService;
     private readonly IUserService _userService;
     private readonly ILogger<ActionsController> _logger;
 
     public ActionsController(
         IActionService actionService,
         IActionPlanService actionPlanService,
+        IEvidenceService evidenceService,
         IUserService userService,
         ILogger<ActionsController> logger)
     {
         _actionService = actionService;
         _actionPlanService = actionPlanService;
+        _evidenceService = evidenceService;
         _userService = userService;
         _logger = logger;
     }
@@ -215,6 +218,58 @@ public class ActionsController : Controller
         {
             _logger.LogError(ex, "Erreur lors du rejet de l'action");
             return BadRequest();
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SubmitEvidence(int id, string comment, IFormFileCollection attachments)
+    {
+        var action = await _actionService.GetByIdAsync(id);
+        if (action == null)
+            return NotFound();
+
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "";
+        if (action.ResponsibleId != userId && !User.IsInRole("ADMIN"))
+            return Forbid();
+
+        try
+        {
+            var evidence = new Evidence
+            {
+                ActionId = id,
+                Comment = comment,
+                Status = EvidenceStatus.Submitted,
+                SubmittedById = userId,
+                SubmittedAt = DateTime.UtcNow
+            };
+
+            var submittedEvidence = await _evidenceService.SubmitAsync(evidence, userId);
+
+            if (attachments != null && attachments.Count > 0)
+            {
+                foreach (var file in attachments)
+                {
+                    if (file.Length > 0)
+                    {
+                        try
+                        {
+                            await _evidenceService.UploadAttachmentAsync(submittedEvidence.Id, file, userId);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, $"Erreur lors de l'upload du fichier {file.FileName}");
+                        }
+                    }
+                }
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur lors de la soumission de la preuve");
+            TempData["Error"] = "Erreur lors de la soumission de la preuve";
+            return RedirectToAction(nameof(Details), new { id });
         }
     }
 
