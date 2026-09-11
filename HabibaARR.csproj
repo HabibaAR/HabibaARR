@@ -19,6 +19,7 @@
 
     <!-- Reports and Export -->
     <PackageReference Include="ClosedXML" Version="0.102.1" />
+    <PackageReference Include="itext7" Version="7.2.5" />
 
     <!-- Logging and Utilities -->
     <PackageReference Include="Serilog" Version="3.0.1" />

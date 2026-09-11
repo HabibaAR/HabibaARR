@@ -95,6 +95,43 @@ public class ReportsController : Controller
             return RedirectToAction(nameof(Index));
         }
     }
+
+    [HttpPost]
+    public async Task<IActionResult> ExportActionsToPdf()
+    {
+        try
+        {
+            var pdfFile = await _reportService.ExportActionsToPdfAsync();
+            var fileName = $"Actions_Export_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            _logger.LogInformation($"Export actions PDF par {User.Identity?.Name}");
+            return File(pdfFile, "application/pdf", fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur export PDF");
+            TempData["Error"] = "Erreur lors de l'export PDF.";
+            return RedirectToAction(nameof(Index));
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ExportPlansToPdf()
+    {
+        try
+        {
+            var actions = await _actionService.GetAllAsync();
+            var pdfFile = await _reportService.ExportActionsToPdfAsync();
+            var fileName = $"Plans_Export_{DateTime.Now:yyyyMMdd_HHmmss}.pdf";
+            _logger.LogInformation($"Export plans PDF par {User.Identity?.Name}");
+            return File(pdfFile, "application/pdf", fileName);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Erreur export plans PDF");
+            TempData["Error"] = "Erreur lors de l'export PDF.";
+            return RedirectToAction(nameof(Index));
+        }
+    }
 }
 
 public class ReportsIndexViewModel

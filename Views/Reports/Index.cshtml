@@ -185,7 +185,7 @@
 <div class="reports-container">
     <div class="page-header">
         <h1 class="page-title">📄 Rapports & Exports</h1>
-        <p class="page-subtitle">Générez et exportez vos données en Excel</p>
+        <p class="page-subtitle">Générez et exportez vos données en Excel ou PDF</p>
     </div>
 
     <div class="info-box">
@@ -199,9 +199,14 @@
             <div class="report-icon">✓</div>
             <h3 class="report-title">Export des Actions</h3>
             <p class="report-description">Téléchargez la liste complète de toutes les actions avec leurs détails, statuts et dates d'échéance.</p>
-            <form method="post" action="@Url.Action("ExportActionsToExcel", "Reports")">
-                <button type="submit" class="export-button">📥 Exporter en Excel</button>
-            </form>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <form method="post" action="@Url.Action("ExportActionsToExcel", "Reports")" style="flex: 1; min-width: 120px;">
+                    <button type="submit" class="export-button" style="width: 100%;">📊 Excel</button>
+                </form>
+                <form method="post" action="@Url.Action("ExportActionsToPdf", "Reports")" style="flex: 1; min-width: 120px;">
+                    <button type="submit" class="export-button" style="width: 100%;">📄 PDF</button>
+                </form>
+            </div>
         </div>
 
         <!-- Plans Export -->
@@ -209,9 +214,14 @@
             <div class="report-icon">📋</div>
             <h3 class="report-title">Export des Plans</h3>
             <p class="report-description">Téléchargez la liste des plans d'action avec leurs statuts, dates et nombre d'actions associées.</p>
-            <form method="post" action="@Url.Action("ExportPlansToExcel", "Reports")">
-                <button type="submit" class="export-button">📥 Exporter en Excel</button>
-            </form>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <form method="post" action="@Url.Action("ExportPlansToExcel", "Reports")" style="flex: 1; min-width: 120px;">
+                    <button type="submit" class="export-button" style="width: 100%;">📊 Excel</button>
+                </form>
+                <form method="post" action="@Url.Action("ExportPlansToPdf", "Reports")" style="flex: 1; min-width: 120px;">
+                    <button type="submit" class="export-button" style="width: 100%;">📄 PDF</button>
+                </form>
+            </div>
         </div>
 
         <!-- Dashboard Snapshot -->
@@ -255,10 +265,11 @@
     <div style="background: var(--light-bg); border-radius: 8px; padding: 20px; margin-top: 30px;">
         <h3 style="color: var(--text-primary); font-weight: 600; margin-top: 0;">📌 À propos des exports</h3>
         <ul style="color: var(--text-secondary); margin: 10px 0 0 20px; padding: 0;">
-            <li>Les fichiers sont exportés au format Excel (.xlsx)</li>
+            <li>Les fichiers sont exportés au format Excel (.xlsx) ou PDF (.pdf)</li>
             <li>Chaque export inclut la date et l'heure de génération</li>
             <li>Les données sont filtrées selon vos permissions</li>
-            <li>Les exports peuvent être ouverts dans Excel, Google Sheets ou LibreOffice</li>
+            <li>Les fichiers Excel peuvent être ouverts dans Excel, Google Sheets ou LibreOffice</li>
+            <li>Les fichiers PDF sont prêts à imprimer et à partager</li>
             <li>Les exports conservent le formatage et les couleurs de la plateforme</li>
         </ul>
     </div>

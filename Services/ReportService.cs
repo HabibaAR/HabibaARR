@@ -3,6 +3,10 @@ using HabibaARR.Data;
 using HabibaARR.Models;
 using Action = HabibaARR.Models.Action;
 using Microsoft.EntityFrameworkCore;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.Layout.Properties;
 
 namespace HabibaARR.Services;
 
@@ -83,13 +87,53 @@ public class ReportService : IReportService
     {
         var actions = await GetFilteredActionsAsync(statusFilter, priorityFilter, responsibleFilter);
 
-        // For PDF, we'll create a simple HTML that can be converted
-        // In production, use a library like SelectPdf or Syncfusion
-        var htmlContent = GeneratePdfHtml(actions);
+        using (var stream = new MemoryStream())
+        {
+            var writer = new PdfWriter(stream);
+            var pdfDoc = new PdfDocument(writer);
+            var document = new Document(pdfDoc);
 
-        // For now, return a placeholder
-        // In production, use SelectPdf.HtmlToImage or similar
-        return System.Text.Encoding.UTF8.GetBytes(htmlContent);
+            // Title
+            var title = new Paragraph("RAPPORT DES ACTIONS")
+                .SetFontSize(18)
+                .SetBold()
+                .SetMarginBottom(10);
+            document.Add(title);
+
+            // Date
+            var dateInfo = new Paragraph($"Date de génération: {DateTime.Now:dd/MM/yyyy HH:mm:ss}")
+                .SetFontSize(10)
+                .SetMarginBottom(20);
+            document.Add(dateInfo);
+
+            // Table
+            var table = new Table(6);
+            table.SetWidth(iText.Layout.Properties.UnitValue.CreatePercentValue(100));
+
+            // Headers
+            var headers = new[] { "Référence", "Intitulé", "Responsable", "Statut", "Progression", "Échéance" };
+            foreach (var header in headers)
+            {
+                var cell = new Cell().Add(new Paragraph(header).SetBold());
+                table.AddHeaderCell(cell);
+            }
+
+            // Rows
+            foreach (var action in actions.OrderByDescending(a => a.CreatedAt))
+            {
+                table.AddCell(new Cell().Add(new Paragraph(action.Reference)));
+                table.AddCell(new Cell().Add(new Paragraph(action.Title)));
+                table.AddCell(new Cell().Add(new Paragraph(action.Responsible?.FullName ?? "")));
+                table.AddCell(new Cell().Add(new Paragraph(GetStatusDisplay(action.Status))));
+                table.AddCell(new Cell().Add(new Paragraph($"{action.ProgressPercentage}%")));
+                table.AddCell(new Cell().Add(new Paragraph(action.DueDate.ToShortDateString())));
+            }
+
+            document.Add(table);
+            document.Close();
+
+            return stream.ToArray();
+        }
     }
 
     public async Task<byte[]> ExportActionPlansToExcelAsync()
