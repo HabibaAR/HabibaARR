@@ -1,0 +1,357 @@
+@model RegisterViewModel
+
+@{
+    ViewData["Title"] = "Inscription";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inscription - NOVEC Gestion des Plans d'Action</title>
+    <style>
+        :root {
+            --primary-color: #2a5298;
+            --primary-dark: #1e2d4a;
+            --secondary-color: #ff6b6b;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --border-color: #e0e0e0;
+            --light-bg: #f8f9fa;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #3498db;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .register-wrapper {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .form-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background-color: #e3f2fd;
+            border-left-color: var(--info-color);
+            color: #1565c0;
+        }
+
+        .alert-danger {
+            background-color: #ffebee;
+            border-left-color: var(--danger-color);
+            color: #c62828;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .form-control,
+        .form-select {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: #999;
+        }
+
+        .form-help {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+        }
+
+        .password-requirements {
+            background-color: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            border-left: 3px solid var(--warning-color);
+        }
+
+        .requirement {
+            padding: 2px 0;
+        }
+
+        .requirement.met {
+            color: var(--success-color);
+        }
+
+        .requirement::before {
+            content: "○ ";
+            margin-right: 5px;
+        }
+
+        .requirement.met::before {
+            content: "✓ ";
+            font-weight: 700;
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        .btn-register:hover {
+            background-color: #229954;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .footer-links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .footer-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .error-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .error-list li {
+            padding: 4px 0;
+        }
+
+        .error-list li::before {
+            content: "✕ ";
+            font-weight: 700;
+        }
+
+        .info-box {
+            background-color: #f0f7ff;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid var(--info-color);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #1565c0;
+        }
+
+        .info-box strong {
+            color: var(--text-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .register-wrapper {
+                padding: 30px 20px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .form-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-wrapper">
+        <div class="form-header">
+            <div class="form-icon">✍️</div>
+            <h1 class="form-title">Créer un compte</h1>
+            <p class="form-subtitle">Accédez à la plateforme NOVEC</p>
+        </div>
+
+        <div class="info-box">
+            <strong>⚠️ Remarque importante :</strong><br/>
+            L'attribution des rôles et permissions est effectuée par l'administrateur système.
+            Contactez votre responsable IT pour l'activation de votre compte.
+        </div>
+
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState.Values.Any(v => v.Errors.Any()))
+        {
+            <div class="alert alert-danger">
+                <ul class="error-list">
+                    @foreach (var modelState in ViewData.ModelState.Values)
+                    {
+                        @foreach (var error in modelState.Errors)
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    }
+                </ul>
+            </div>
+        }
+
+        <form method="post" novalidate>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName" class="form-label">👤 Prénom</label>
+                    <input type="text" class="form-control" id="firstName" name="FirstName"
+                           placeholder="Votre prénom" required value="@Model?.FirstName" />
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName" class="form-label">👤 Nom</label>
+                    <input type="text" class="form-control" id="lastName" name="LastName"
+                           placeholder="Votre nom" required value="@Model?.LastName" />
+                </div>
+            </div>
+
+            <div class="form-group form-row full">
+                <label for="email" class="form-label">📧 Adresse Email Professionnelle</label>
+                <input type="email" class="form-control" id="email" name="Email"
+                       placeholder="votre.email@novec.fr" required value="@Model?.Email" />
+                <div class="form-help">Utiliser une adresse email professionnelle valide</div>
+            </div>
+
+            <div class="form-group form-row full">
+                <label for="function" class="form-label">💼 Fonction</label>
+                <select class="form-select" id="function" name="Function" required>
+                    <option value="">-- Sélectionnez votre fonction --</option>
+                    <option value="Administrateur" @(Model?.Function == "Administrateur" ? "selected" : "")>Administrateur Système</option>
+                    <option value="Directeur" @(Model?.Function == "Directeur" ? "selected" : "")>Directeur</option>
+                    <option value="Gestionnaire" @(Model?.Function == "Gestionnaire" ? "selected" : "")>Gestionnaire de Plans d'Action</option>
+                    <option value="Responsable" @(Model?.Function == "Responsable" ? "selected" : "")>Responsable d'Action</option>
+                </select>
+                <div class="form-help">Sélectionnez votre fonction pour un accès approprié</div>
+            </div>
+
+            <div class="form-group form-row full">
+                <label for="password" class="form-label">🔑 Mot de passe</label>
+                <input type="password" class="form-control" id="password" name="Password"
+                       placeholder="Créez un mot de passe sécurisé" required />
+                <div class="password-requirements">
+                    <div class="requirement">Au moins 8 caractères</div>
+                    <div class="requirement">Au moins une majuscule</div>
+                    <div class="requirement">Au moins une minuscule</div>
+                    <div class="requirement">Au moins un chiffre</div>
+                    <div class="requirement">Au moins un caractère spécial (!@#$%^&*)</div>
+                </div>
+            </div>
+
+            <div class="form-group form-row full">
+                <label for="confirmPassword" class="form-label">✓ Confirmation du mot de passe</label>
+                <input type="password" class="form-control" id="confirmPassword" name="ConfirmPassword"
+                       placeholder="Confirmez votre mot de passe" required />
+            </div>
+
+            <button type="submit" class="btn-register">✓ Créer mon compte</button>
+
+            <div class="footer-links">
+                <a href="@Url.Action("Login", "Account")" class="footer-link">← J'ai déjà un compte</a>
+                <span style="margin: 0 10px; color: var(--border-color);">•</span>
+                <a href="@Url.Action("Index", "Home")" class="footer-link">Retour à l'accueil</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

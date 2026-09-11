@@ -1,4 +1,5 @@
 using HabibaARR.Models;
+using HabibaARR.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -64,6 +65,54 @@ public class AccountController : Controller
         return View(model);
     }
 
+    [HttpGet]
+    public IActionResult Register()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Register(RegisterViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("Email", "Cet email est déjà enregistré.");
+                return View(model);
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                FullName = $"{model.FirstName} {model.LastName}",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            if (result.Succeeded)
+            {
+                // Note: Role assignment is restricted to administrators
+                // Users will receive their role assignment through admin intervention only
+                _logger.LogInformation($"Nouvel utilisateur enregistré: {user.Email}");
+
+                TempData["Success"] = "Compte créé avec succès. Veuillez contacter votre administrateur pour l'activation.";
+                return RedirectToAction(nameof(Login));
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+        }
+
+        return View(model);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Logout()
     {
@@ -85,11 +134,4 @@ public class AccountController : Controller
 
         return RedirectToAction(nameof(HomeController.Index), "Home");
     }
-}
-
-public class LoginViewModel
-{
-    public string Email { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
-    public bool RememberMe { get; set; }
 }
