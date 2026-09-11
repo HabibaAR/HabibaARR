@@ -1,0 +1,271 @@
+@model ReportsIndexViewModel
+
+@{
+    ViewData["Title"] = "Rapports & Exports";
+}
+
+<style>
+    .reports-container {
+        max-width: 1000px;
+    }
+
+    .page-header {
+        margin-bottom: 30px;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0 0 10px 0;
+    }
+
+    .page-subtitle {
+        color: var(--text-secondary);
+        margin: 0;
+    }
+
+    .reports-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .report-card {
+        background: white;
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .report-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .report-icon {
+        font-size: 2.5rem;
+        margin-bottom: 15px;
+    }
+
+    .report-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 10px;
+    }
+
+    .report-description {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+        flex: 1;
+    }
+
+    .export-button {
+        background-color: var(--primary-color);
+        color: white;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    .export-button:hover {
+        background-color: var(--primary-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(42, 82, 152, 0.3);
+    }
+
+    .export-button:active {
+        transform: translateY(0);
+    }
+
+    .report-options {
+        background: white;
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 30px;
+    }
+
+    .options-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0 0 20px 0;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+
+    .form-select,
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-select:focus,
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+    }
+
+    .button-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn-export {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .info-box {
+        background-color: #f0f7ff;
+        border-left: 4px solid var(--info-color);
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        color: #1565c0;
+    }
+
+    .info-box strong {
+        color: var(--text-primary);
+    }
+
+    @media (max-width: 768px) {
+        .page-title {
+            font-size: 1.5rem;
+        }
+
+        .reports-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+
+        .btn-export {
+            min-width: auto;
+        }
+    }
+</style>
+
+<div class="reports-container">
+    <div class="page-header">
+        <h1 class="page-title">📄 Rapports & Exports</h1>
+        <p class="page-subtitle">Générez et exportez vos données en Excel</p>
+    </div>
+
+    <div class="info-box">
+        ℹ️ <strong>Conseil:</strong> Exportez vos données régulièrement pour conserver des sauvegardes et faciliter l'analyse externe.
+    </div>
+
+    <!-- Quick Export Cards -->
+    <div class="reports-grid">
+        <!-- Actions Export -->
+        <div class="report-card">
+            <div class="report-icon">✓</div>
+            <h3 class="report-title">Export des Actions</h3>
+            <p class="report-description">Téléchargez la liste complète de toutes les actions avec leurs détails, statuts et dates d'échéance.</p>
+            <form method="post" action="@Url.Action("ExportActionsToExcel", "Reports")">
+                <button type="submit" class="export-button">📥 Exporter en Excel</button>
+            </form>
+        </div>
+
+        <!-- Plans Export -->
+        <div class="report-card">
+            <div class="report-icon">📋</div>
+            <h3 class="report-title">Export des Plans</h3>
+            <p class="report-description">Téléchargez la liste des plans d'action avec leurs statuts, dates et nombre d'actions associées.</p>
+            <form method="post" action="@Url.Action("ExportPlansToExcel", "Reports")">
+                <button type="submit" class="export-button">📥 Exporter en Excel</button>
+            </form>
+        </div>
+
+        <!-- Dashboard Snapshot -->
+        <div class="report-card">
+            <div class="report-icon">📊</div>
+            <h3 class="report-title">Snapshot Dashboard</h3>
+            <p class="report-description">Exportez les métriques clés du dashboard avec les statistiques actuelles et taux de clôture.</p>
+            <form method="post" action="@Url.Action("ExportDashboardSnapshot", "Reports")">
+                <button type="submit" class="export-button">📥 Exporter en Excel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Advanced Export Options -->
+    <div class="report-options">
+        <h2 class="options-title">🔧 Options d'Export Avancées</h2>
+
+        @if (Model.ActionPlans.Any())
+        {
+            <form method="post" action="@Url.Action("ExportActionsToExcel", "Reports")">
+                <div class="form-group">
+                    <label for="planSelect" class="form-label">Exporter les actions d'un plan spécifique</label>
+                    <select id="planSelect" name="planId" class="form-select">
+                        <option value="">-- Tous les plans --</option>
+                        @foreach (var plan in Model.ActionPlans)
+                        {
+                            <option value="@plan.Id">@plan.Reference - @plan.Title</option>
+                        }
+                    </select>
+                </div>
+                <button type="submit" class="export-button">📥 Exporter les actions du plan</button>
+            </form>
+        }
+        else
+        {
+            <p style="color: var(--text-secondary); font-style: italic;">Aucun plan d'action disponible pour export filtré.</p>
+        }
+    </div>
+
+    <!-- Export Information -->
+    <div style="background: var(--light-bg); border-radius: 8px; padding: 20px; margin-top: 30px;">
+        <h3 style="color: var(--text-primary); font-weight: 600; margin-top: 0;">📌 À propos des exports</h3>
+        <ul style="color: var(--text-secondary); margin: 10px 0 0 20px; padding: 0;">
+            <li>Les fichiers sont exportés au format Excel (.xlsx)</li>
+            <li>Chaque export inclut la date et l'heure de génération</li>
+            <li>Les données sont filtrées selon vos permissions</li>
+            <li>Les exports peuvent être ouverts dans Excel, Google Sheets ou LibreOffice</li>
+            <li>Les exports conservent le formatage et les couleurs de la plateforme</li>
+        </ul>
+    </div>
+
+    <!-- Footer Info -->
+    <div style="text-align: center; margin-top: 30px; color: var(--text-secondary); font-size: 0.9rem;">
+        <p>Dernière mise à jour: @Model.ExportDate.ToString("dd/MM/yyyy HH:mm")</p>
+        <p style="margin: 0;">Pour les rapports PDF personnalisés, contactez l'administrateur système.</p>
+    </div>
+</div>
