@@ -72,6 +72,7 @@ public class DashboardService : IDashboardService
         }
 
         var result = await query
+            .Where(a => a.Responsible != null)
             .GroupBy(a => a.Responsible!.FullName)
             .Select(g => new { Name = g.Key, Count = g.Count() })
             .OrderByDescending(x => x.Count)
@@ -99,7 +100,7 @@ public class DashboardService : IDashboardService
     {
         var today = DateTime.Today;
         var result = await _context.Actions
-            .Where(a => a.DueDate < today && a.Status != ActionStatus.Completed)
+            .Where(a => a.DueDate < today && a.Status != ActionStatus.Completed && a.Responsible != null)
             .GroupBy(a => a.Responsible!.FullName)
             .Select(g => new { Name = g.Key, Count = g.Count() })
             .OrderByDescending(x => x.Count)
