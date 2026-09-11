@@ -4,92 +4,302 @@
     ViewData["Title"] = "Plans d'action";
 }
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>
-            <i class="fas fa-file-alt"></i> Plans d'action
-        </h1>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Nouveau plan
-        </a>
-    </div>
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        gap: 20px;
+    }
 
-    @if (Model.Any())
-    {
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Référence</th>
-                        <th>Intitulé</th>
-                        <th>Gestionnaire</th>
-                        <th>Statut</th>
-                        <th>Actions</th>
-                        <th>Dates</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var plan in Model.OrderByDescending(p => p.CreatedAt))
-                    {
-                        <tr>
-                            <td>
-                                <strong>@plan.Reference</strong>
-                            </td>
-                            <td>@plan.Title</td>
-                            <td>@plan.ManagerName</td>
-                            <td>
-                                <span class="badge @GetStatusBadgeClass(plan.Status)">
-                                    @GetStatusDisplay(plan.Status)
-                                </span>
-                            </td>
-                            <td>
-                                <span class="badge bg-info">@plan.ActionCount</span>
-                            </td>
-                            <td>
-                                <small>
-                                    @plan.StartDate.ToShortDateString() - @plan.EndDate.ToShortDateString()
-                                </small>
-                            </td>
-                            <td class="text-center">
-                                <a asp-action="Details" asp-route-id="@plan.Id" class="btn btn-sm btn-info">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                @if (plan.Status == ActionPlanStatus.Draft)
-                                {
-                                    <form asp-action="Submit" asp-route-id="@plan.Id" method="post" class="d-inline">
-                                        <button type="submit" class="btn btn-sm btn-success"
-                                                onclick="return confirm('Confirmer la transmission du plan ?')">
-                                            <i class="fas fa-paper-plane"></i>
-                                        </button>
-                                    </form>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
     }
-    else
-    {
-        <div class="alert alert-info" role="alert">
-            <i class="fas fa-info-circle"></i> Aucun plan d'action trouvé.
-            <a asp-action="Create">Créer le premier plan</a>
-        </div>
+
+    .btn-create {
+        background-color: var(--success-color);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
     }
+
+    .btn-create:hover {
+        background-color: #229954;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+    }
+
+    .plans-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .plans-table thead {
+        background-color: var(--light-bg);
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .plans-table th {
+        padding: 15px 20px;
+        text-align: left;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+
+    .plans-table tbody tr {
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.3s ease;
+    }
+
+    .plans-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .plans-table td {
+        padding: 15px 20px;
+        color: var(--text-primary);
+    }
+
+    .plan-reference {
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .status-draft {
+        background-color: #e0e0e0;
+        color: #555;
+    }
+
+    .status-active {
+        background-color: #e8f5e9;
+        color: var(--success-color);
+    }
+
+    .status-closed {
+        background-color: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .status-archived {
+        background-color: #fff3e0;
+        color: #e65100;
+    }
+
+    .action-count-badge {
+        background-color: var(--info-color);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-sm-view {
+        background-color: var(--info-color);
+        color: white;
+    }
+
+    .btn-sm-view:hover {
+        background-color: #2980b9;
+    }
+
+    .btn-sm-submit {
+        background-color: var(--success-color);
+        color: white;
+    }
+
+    .btn-sm-submit:hover {
+        background-color: #229954;
+    }
+
+    .btn-sm-submit form {
+        display: contents;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+
+    .empty-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 10px;
+    }
+
+    .empty-text {
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+    }
+
+    .empty-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .empty-link:hover {
+        text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .btn-create {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .plans-table th,
+        .plans-table td {
+            padding: 12px 10px;
+            font-size: 0.85rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-sm {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <h1 class="page-title">📋 Plans d'action</h1>
+    <a href="@Url.Action("Create", "ActionPlans")" class="btn-create">✨ Nouveau plan</a>
 </div>
 
+@if (Model.Any())
+{
+    <table class="plans-table">
+        <thead>
+            <tr>
+                <th>Référence</th>
+                <th>Intitulé</th>
+                <th>Gestionnaire</th>
+                <th>Statut</th>
+                <th style="text-align: center;">Actions</th>
+                <th style="text-align: center;">Dates</th>
+                <th style="text-align: center;">Opérations</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var plan in Model.OrderByDescending(p => p.CreatedAt))
+            {
+                <tr>
+                    <td class="plan-reference">@plan.Reference</td>
+                    <td>@plan.Title</td>
+                    <td>@plan.ManagerName</td>
+                    <td>
+                        <span class="status-badge @GetStatusCssClass(plan.Status)">
+                            @GetStatusDisplay(plan.Status)
+                        </span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="action-count-badge">@plan.ActionCount</span>
+                    </td>
+                    <td style="text-align: center; font-size: 0.9rem;">
+                        @plan.StartDate.ToShortDateString() - @plan.EndDate.ToShortDateString()
+                    </td>
+                    <td style="text-align: center;">
+                        <div class="action-buttons">
+                            <a href="@Url.Action("Details", "ActionPlans", new { id = plan.Id })" class="btn-sm btn-sm-view">
+                                👁️ Voir
+                            </a>
+                            @if (plan.Status == ActionPlanStatus.Draft)
+                            {
+                                <form method="post" action="@Url.Action("Submit", "ActionPlans", new { id = plan.Id })"
+                                      onsubmit="return confirm('Confirmer la transmission de ce plan ?');" style="display: contents;">
+                                    <button type="submit" class="btn-sm btn-sm-submit">📤 Transmettre</button>
+                                </form>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h2 class="empty-title">Aucun plan d'action</h2>
+        <p class="empty-text">Commencez par créer votre premier plan d'action</p>
+        <a href="@Url.Action("Create", "ActionPlans")" class="btn-create">✨ Créer un plan</a>
+    </div>
+}
+
 @functions {
-    string GetStatusBadgeClass(ActionPlanStatus status)
+    string GetStatusCssClass(ActionPlanStatus status)
     {
         return status switch
         {
-            ActionPlanStatus.Draft => "bg-secondary",
-            ActionPlanStatus.Active => "bg-success",
-            ActionPlanStatus.Closed => "bg-dark",
-            ActionPlanStatus.Archived => "bg-warning",
-            _ => "bg-light"
+            ActionPlanStatus.Draft => "status-draft",
+            ActionPlanStatus.Active => "status-active",
+            ActionPlanStatus.Closed => "status-closed",
+            ActionPlanStatus.Archived => "status-archived",
+            _ => "status-draft"
         };
     }
 
@@ -97,11 +307,11 @@
     {
         return status switch
         {
-            ActionPlanStatus.Draft => "Brouillon",
-            ActionPlanStatus.Active => "Actif",
-            ActionPlanStatus.Closed => "Clôturé",
-            ActionPlanStatus.Archived => "Archivé",
-            _ => "Inconnu"
+            ActionPlanStatus.Draft => "🔨 Brouillon",
+            ActionPlanStatus.Active => "✓ Actif",
+            ActionPlanStatus.Closed => "✓✓ Clôturé",
+            ActionPlanStatus.Archived => "📦 Archivé",
+            _ => "? Inconnu"
         };
     }
 }
