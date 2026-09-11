@@ -9,18 +9,11 @@ public class DbInitializer
     public static void Initialize(ApplicationDbContext context)
     {
         // Check if database already initialized
-        if (context.Users.Any())
+        if (context.Users.Any() || context.Roles.Any())
             return;
 
-        // Get role manager from DI - we'll need to do this through a service
-        // For now, we'll manually create roles via direct DB access
-        var rolesExist = context.Database.ExecuteSqlRaw("SELECT COUNT(*) FROM AspNetRoles") > 0;
-
-        if (!rolesExist)
-        {
-            CreateRoles(context);
-            CreateDefaultUsers(context);
-        }
+        CreateRoles(context);
+        CreateDefaultUsers(context);
     }
 
     private static void CreateRoles(ApplicationDbContext context)
@@ -107,12 +100,15 @@ public class DbInitializer
 
         foreach (var user in users)
         {
-            user.PasswordHash = hasher.HashPassword(user, "Test@12345");
-            context.Users.Add(user);
+            if (!context.Users.Any(u => u.Email == user.Email))
+            {
+                user.PasswordHash = hasher.HashPassword(user, "Test@12345");
+                context.Users.Add(user);
+            }
         }
         context.SaveChanges();
 
-        // Assign roles
+        // Assign roles - ensure no duplicates
         var roleAssignments = new[]
         {
             new IdentityUserRole<string> { UserId = "admin-001", RoleId = "1" },
@@ -121,7 +117,13 @@ public class DbInitializer
             new IdentityUserRole<string> { UserId = "responsable-001", RoleId = "4" }
         };
 
-        context.UserRoles.AddRange(roleAssignments);
+        foreach (var assignment in roleAssignments)
+        {
+            if (!context.UserRoles.Any(ur => ur.UserId == assignment.UserId && ur.RoleId == assignment.RoleId))
+            {
+                context.UserRoles.Add(assignment);
+            }
+        }
         context.SaveChanges();
     }
 }
