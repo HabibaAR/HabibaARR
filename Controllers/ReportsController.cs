@@ -27,7 +27,8 @@ public class ReportsController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var actionPlans = await _actionPlanService.GetAllAsync();
+        var userId = User.FindFirst("sub")?.Value ?? User.Identity?.Name ?? "";
+        var actionPlans = await _actionPlanService.GetAllAsync(userId);
         var viewModel = new ReportsIndexViewModel
         {
             ActionPlans = actionPlans.Select(ap => new ActionPlanSummary

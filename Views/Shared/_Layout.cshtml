@@ -7,127 +7,29 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - NOVEC Gestion des Plans d'Action</title>
+    <title>@ViewData["Title"] - NOVEC</title>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
     <div class="app-layout">
         @if (SignInManager.IsSignedIn(User))
         {
-            <!-- Sidebar Navigation -->
             <aside class="sidebar">
                 <div class="sidebar-brand">
-                    <h1 class="brand-title">NOVEC</h1>
-                    <p class="brand-subtitle">GPA</p>
-                </div>
-
-                <nav class="sidebar-nav">
-                    <ul class="nav-list">
-                        <li class="nav-item">
-                            <a href="@Url.Action("Index", "Dashboard")" class="nav-link">
-                                <span class="nav-icon">📊</span>
-                                <span class="nav-text">Tableau de bord</span>
-                            </a>
-                        </li>
-                        @if (User.IsInRole("ADMIN") || User.IsInRole("DIRECTEUR") || User.IsInRole("GESTIONNAIRE"))
-                        {
-                            <li class="nav-item">
-                                <a href="@Url.Action("Index", "ActionPlans")" class="nav-link">
-                                    <span class="nav-icon">📋</span>
-                                    <span class="nav-text">Plans d'action</span>
-                                </a>
-                            </li>
-                        }
-                        @if (User.IsInRole("RESPONSABLE") || User.IsInRole("GESTIONNAIRE"))
-                        {
-                            <li class="nav-item">
-                                <a href="@Url.Action("Index", "Actions")" class="nav-link">
-                                    <span class="nav-icon">✓</span>
-                                    <span class="nav-text">Actions</span>
-                                </a>
-                            </li>
-                        }
-                        @if (User.IsInRole("ADMIN") || User.IsInRole("DIRECTEUR") || User.IsInRole("GESTIONNAIRE"))
-                        {
-                            <li class="nav-item">
-                                <a href="@Url.Action("Index", "Reports")" class="nav-link">
-                                    <span class="nav-icon">📄</span>
-                                    <span class="nav-text">Rapports</span>
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                </nav>
-
-                <div class="sidebar-footer">
-                    <div class="user-section">
-                        <div class="user-avatar">@User.FindFirst("name")?.Value?.First()</div>
-                        <div class="user-info">
-                            <p class="user-name">@User.FindFirst("name")?.Value</p>
-                            <p class="user-role">@string.Join(", ", User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value))</p>
-                        </div>
-                    </div>
-                    <form method="post" asp-controller="Account" asp-action="Logout" style="display: inline;">
-                        <button type="submit" class="btn btn-logout">🚪 Déconnexion</button>
-                    </form>
+                    <h1>NOVEC</h1>
                 </div>
             </aside>
-
-            <!-- Main Content Area -->
             <main class="main-content">
-                <header class="top-header">
-                    <div class="header-content">
-                        <h2 class="page-title">Plateforme de Gestion des Plans d'Action</h2>
-                        <p class="header-subtitle">NOVEC Group</p>
-                    </div>
-                </header>
-
-                <div class="content-wrapper">
-                    @if (TempData["Success"] != null)
-                    {
-                        <div class="alert alert-success">
-                            <span class="alert-icon">✓</span>
-                            <span class="alert-text">@TempData["Success"]</span>
-                            <button type="button" class="alert-close" onclick="this.parentElement.style.display='none';">×</button>
-                        </div>
-                    }
-
-                    @if (TempData["Error"] != null)
-                    {
-                        <div class="alert alert-danger">
-                            <span class="alert-icon">!</span>
-                            <span class="alert-text">@TempData["Error"]</span>
-                            <button type="button" class="alert-close" onclick="this.parentElement.style.display='none';">×</button>
-                        </div>
-                    }
-
-                    @RenderBody()
-                </div>
-
-                <!-- Footer -->
-                <footer class="app-footer">
-                    <div class="footer-content">
-                        <p>&copy; 2026 NOVEC Group. Plateforme de Gestion des Plans d'Action. Tous droits réservés.</p>
-                        <div class="footer-links">
-                            <a href="#" class="footer-link">Politique de confidentialité</a>
-                            <span class="footer-separator">|</span>
-                            <a href="#" class="footer-link">Conditions d'utilisation</a>
-                            <span class="footer-separator">|</span>
-                            <a href="#" class="footer-link">Support</a>
-                        </div>
-                    </div>
-                </footer>
+                @RenderBody()
             </main>
         }
-        @else
+        else
         {
-            <!-- Public Layout (Not Logged In) -->
             <main class="public-layout">
                 @RenderBody()
             </main>
         }
     </div>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

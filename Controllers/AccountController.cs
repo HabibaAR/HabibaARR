@@ -87,7 +87,8 @@ public class AccountController : Controller
             {
                 UserName = model.Email,
                 Email = model.Email,
-                FullName = $"{model.FirstName} {model.LastName}",
+                FirstName = model.FirstName,
+                LastName = model.LastName,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             };

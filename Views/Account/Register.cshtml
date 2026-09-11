@@ -246,7 +246,7 @@
         }
 
         /* Responsive */
-        @media (max-width: 600px) {
+        @@media (max-width: 600px) {
             .register-wrapper {
                 padding: 30px 20px;
             }
@@ -317,10 +317,38 @@
                 <label for="function" class="form-label">💼 Fonction</label>
                 <select class="form-select" id="function" name="Function" required>
                     <option value="">-- Sélectionnez votre fonction --</option>
-                    <option value="Administrateur" @(Model?.Function == "Administrateur" ? "selected" : "")>Administrateur Système</option>
-                    <option value="Directeur" @(Model?.Function == "Directeur" ? "selected" : "")>Directeur</option>
-                    <option value="Gestionnaire" @(Model?.Function == "Gestionnaire" ? "selected" : "")>Gestionnaire de Plans d'Action</option>
-                    <option value="Responsable" @(Model?.Function == "Responsable" ? "selected" : "")>Responsable d'Action</option>
+                    @if (Model?.Function == "Administrateur")
+                    {
+                        <option value="Administrateur" selected>Administrateur Système</option>
+                    }
+                    else
+                    {
+                        <option value="Administrateur">Administrateur Système</option>
+                    }
+                    @if (Model?.Function == "Directeur")
+                    {
+                        <option value="Directeur" selected>Directeur</option>
+                    }
+                    else
+                    {
+                        <option value="Directeur">Directeur</option>
+                    }
+                    @if (Model?.Function == "Gestionnaire")
+                    {
+                        <option value="Gestionnaire" selected>Gestionnaire de Plans d'Action</option>
+                    }
+                    else
+                    {
+                        <option value="Gestionnaire">Gestionnaire de Plans d'Action</option>
+                    }
+                    @if (Model?.Function == "Responsable")
+                    {
+                        <option value="Responsable" selected>Responsable d'Action</option>
+                    }
+                    else
+                    {
+                        <option value="Responsable">Responsable d'Action</option>
+                    }
                 </select>
                 <div class="form-help">Sélectionnez votre fonction pour un accès approprié</div>
             </div>
@@ -334,7 +362,7 @@
                     <div class="requirement">Au moins une majuscule</div>
                     <div class="requirement">Au moins une minuscule</div>
                     <div class="requirement">Au moins un chiffre</div>
-                    <div class="requirement">Au moins un caractère spécial (!@#$%^&*)</div>
+                    <div class="requirement">Au moins un caractère spécial (@@#$%^&*)</div>
                 </div>
             </div>
 
