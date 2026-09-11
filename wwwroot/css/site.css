@@ -873,3 +873,14 @@ body {
 .align-items-center {
     align-items: center;
 }
+
+.logout-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    font-size: inherit;
+    margin-top: auto;
+}

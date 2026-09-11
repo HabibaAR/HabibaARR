@@ -18,6 +18,16 @@
                 <div class="sidebar-brand">
                     <h1>NOVEC</h1>
                 </div>
+                <nav class="sidebar-nav">
+                    <a href="@Url.Action("Index", "Dashboard")" class="nav-link">📊 Tableau de bord</a>
+                    <a href="@Url.Action("Index", "ActionPlans")" class="nav-link">📋 Plans d'Action</a>
+                    <a href="@Url.Action("Index", "Actions")" class="nav-link">✓ Actions</a>
+                    <a href="@Url.Action("Index", "Reports")" class="nav-link">📄 Rapports</a>
+                    <hr style="margin: 15px 0; border: none; border-top: 1px solid rgba(255,255,255,0.2);">
+                    <form method="post" action="@Url.Action("Logout", "Account")" style="margin: 0;">
+                        <button type="submit" class="nav-link logout-btn">🚪 Déconnexion</button>
+                    </form>
+                </nav>
             </aside>
             <main class="main-content">
                 @RenderBody()
